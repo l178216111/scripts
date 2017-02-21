@@ -1,0 +1,184 @@
+
+#
+# .OHP_DataProc - config file for OHP_DataProc.pl
+#
+
+$CONFIG_RCS = q{$Id: .OHP_FileProc,v 1.87 2013/05/31 17:07:10 probe Exp $};
+
+#  Format of this file is perl syntax to define hash ref of transfer parameters
+#  To test parsing and validate this file review hash displayed by typing:
+#
+#	% perl .OHP_DataProc test
+
+#  Data structure content for each transfer hash entry:
+#
+#  'JOBID' => {					# JOBID (arg to OHP_DataProc.pl)
+#
+#	'from'	 => '/path/to/source/dir',	# REQUIRED - source of transfer
+#	'filter' => 'reg_expr',			# optional - filters filenames transfered
+#	'fileage' => <number>,			# optional - transfer files older than <number> minutes
+#	'limit'  => <number>,			# optional - max # files attempted per run
+#
+#	'to' 	 => [ 					# REQUIRED - one or more destination hash refs
+#
+#	    {
+#		'dir'  => '/path/to/target/dir',	# destination directory name, must be exists, or it will wait until timeout(decided by $NFS_TIMEOUT, try every $NFS_SLEEP_TIME )
+#		'final_proc => '/path/to/final_proc',	# the final process when cp all files to dir above.
+#	    },						# REQUIRED: at least 1 'dir' or 'proc'
+#	    {
+#		'home' => '/path/to/script',	# data processing script call
+#		'proc' => 'script_name',	# data processing script call
+#	    },
+#	];
+#
+#  },
+
+$transfers = {
+
+	'N23B_BITMAP' => {
+		'fileage' => '5',
+		'to' => [
+			{
+				'dir' => '/data/transfer/Dbox/93k_bitmaps'
+			}
+			],
+		'filter' => '\\.bmdb(.gz)?$',
+		'from' => '/data/bitmaps/BITMAPS/P1023_N23B',
+		'gzip' => 1
+	},
+	'N48H_BITMAP' => {
+                'fileage' => '5',
+                'to' => [
+                        {
+                                'dir' => '/data/transfer/Dbox/93k_bitmaps'
+                        }
+                        ],
+                'filter' => '\\.bmdb(.gz)?$',
+                'from' => '/data/bitmaps/BITMAPS/C290_N48H',
+                'gzip' => 1
+        },
+
+	'N23B_SCAN' => {
+	
+		'from' 		=> '/data/bitmaps/SCAN/N23B',
+		'filter'	=> '\.scanlog(.gz)?$',
+		'gzip'		=> 1,
+		'fileage'	=> 5,
+		'to'		=> [
+						{
+							'dir' => '/exec/apps/bin/93k_bitmap_scripts/staging_N23B/',
+							'final_proc' => '/exec/apps/bin/93k_bitmap_scripts/generate_tar.pl',
+							'part' => 'N23B',
+						}
+					],
+	},
+	
+	'N61A_BITMAP' => {
+                'fileage' => '5',
+                'to' => [
+                        {
+                                'dir' => '/data/transfer/Dbox/93k_bitmaps'
+                        }
+                        ],
+                'filter' => '\\.bmdb(.gz)?$',
+                'from' => '/data/bitmaps/BITMAPS/P1010_N61A',
+                'gzip' => 1
+	},
+
+        'N61A_SCAN' => {
+
+                'from'          => '/data/bitmaps/SCAN/N61A',
+                'filter'        => '\.scanlog(.gz)?$',
+                'gzip'          => 1,
+                'fileage'       => 5,
+                'to'            => [
+                                                {
+                                                        'dir' => '/exec/apps/bin/93k_bitmap_scripts/staging_N61A/',
+                                                        'final_proc' => '/exec/apps/bin/93k_bitmap_scripts/generate_tar.pl',
+							'part' => 'N61A',
+                                                }
+                                        ],
+        },
+
+        'M81W_BITMAP' => {
+                'fileage' => '5',
+                'to' => [
+                        {
+                                'dir' => '/data/transfer/Dbox/93k_bitmaps'
+                        }
+                        ],
+                'filter' => '\\.bmdb(.gz)?$',
+                'from' => '/data/bitmaps/BITMAPS/P1020_M81W',
+                'gzip' => 1
+        },
+
+        'M81W_SCAN' => {
+
+                'from'          => '/data/bitmaps/SCAN/M81W',
+                'filter'        => '\.scanlog(.gz)?$',
+                'gzip'          => 1,
+                'fileage'       => 5,
+                'to'            => [
+                                                {
+                                                        'dir' => '/exec/apps/bin/93k_bitmap_scripts/staging_M81W/',
+                                                        'final_proc' => '/exec/apps/bin/93k_bitmap_scripts/generate_tar.pl',
+							'part' => 'M81W',
+                                                }
+                                        ],
+        },
+	'N48H_SCAN' => {
+
+                'from'          => '/data/bitmaps/SCAN/C290_N48H',
+                'filter'        => '\.scanlog(.gz)?$',
+                'gzip'          => 1,
+                'fileage'       => 5,
+                'to'            => [
+                                                {
+                                                        'dir' => '/exec/apps/bin/93k_bitmap_scripts/staging_N48H/',
+                                                        'final_proc' => '/exec/apps/bin/93k_bitmap_scripts/generate_tar.pl',
+                                                        'part' => 'N48H',
+                                                }
+                                        ],
+        },
+
+        'M79W_BITMAP' => {
+                'fileage' => '5',
+                'to' => [
+                        {
+                                'dir' => '/data/transfer/Dbox/93k_bitmaps'
+                        }
+                        ],
+                'filter' => '\\.bmdb(.gz)?$',
+                'from' => '/data/bitmaps/BITMAPS/P1022_M79W',
+                'gzip' => 1
+        },
+
+        'M79W_SCAN' => {
+
+                'from'          => '/data/bitmaps/SCAN/M79W',
+                'filter'        => '\.scanlog(.gz)?$',
+                'gzip'          => 1,
+                'fileage'       => 5,
+                'to'            => [
+                                                {
+                                                        'dir' => '/exec/apps/bin/93k_bitmap_scripts/staging_M79W/',
+                                                        'final_proc' => '/exec/apps/bin/93k_bitmap_scripts/generate_tar.pl',
+							'part' => 'M79W',
+                                                }
+                                        ],
+        },
+
+
+};    # %transfers
+
+## test parsing of this file, if specified
+
+if ( $ARGV[0] eq 'test' and $0 =~ /^\./ ) {
+
+	shift(@ARGV);    # avoid infinite do's
+	use Data::Dumper;
+	print Data::Dumper->Dump( [ do $0 ], ['xfers'] );
+}
+
+## nothing after next line to ensure last command returns transfer hash ref
+$transfers;

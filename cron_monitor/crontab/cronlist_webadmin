@@ -1,0 +1,39 @@
+# old hold report
+0 * * * * cd /usr/local/apache2/cgi-bin/holdreports_linux; ./current_holds_byfab.pl loader > loader.log 
+0 3,8,16,20 * * * cd /usr/local/apache2/cgi-bin/holdreports_linux; ./mailholdlot.ksh > mailholdlot.log 
+10 8 * * * cd /usr/local/apache2/cgi-bin/holdreports_linux; ./current_holds_byfab.pl__cron > /tmp/current_holds_byfab.pl__cron.log 
+# end 
+# new hold lot report
+0 8,17 * * * cd /probeeng/webadmin/cgi-bin/holdreports_linux; ./record_wip_hold.pl > /dev/null 
+10 8,16 * * * cd /probeeng/webadmin/cgi-bin/holdreports_linux; ./record_holdcode.pl > /dev/null 
+30 19 * * * cd /probeeng/webadmin/cgi-bin/holdreports_linux; ./current_holds_by_people_cron.pl > ./current_holds_by_people_cron.txt 
+30 8,17 * * * cd /probeeng/webadmin/cgi-bin/holdreports_linux; ./record_mbg.pl > /dev/null
+#end
+#########GPO Web site cornjob from here###########
+#12 * * * * cd /usr/local/apache2/cgi-bin/gpohold_linux/; ./hold.pl loader > ./loader.log
+#20 * * * * cd /usr/local/apache2/cgi-bin/gpohold_linux/; ./holdj750.pl loader >> ./loader.log
+#10 15 * * * cd /usr/local/apache2/cgi-bin/gpoout_linux; ./outputj750.pl >> ./loader.log 
+#55 15 * * * cd /usr/local/apache2/cgi-bin/GPO_metrics_linux; ./GPO_metrics > /dev/null
+######################GPO end############################
+#  floorview web page information update
+0,10,20,30,40,50 * * * * /usr/local/apache2/cgi-bin/floorview_linux/check_daemon_thread_floorviewimprove > /dev/null
+#  for checkmatrix backup perl database file 
+59 23 * * * /exec/apps/tools/cron/cleanup/matrix_datafile_Manage.sh > /u01/webadmin/manage_matrx.log 
+#  MPN Background Check daemon
+0 */1 * * * cd /probeeng/webadmin/cgi-bin/MPNcheck/ ; ./MPNcheck_background.pl 2>&1 |mailx -s 'MPN Background Check Daemon' b39753@freescale.com
+# IGXL SMT version check
+20 12 * * * /exec/apps/tools/cron/healthy_check/IGXL/check_version.pl |mailx -s 'IGXL Version Check' tjndata@freescale.com prb750@freescale.com r65396@freescale.com b30977@freescale.com > /dev/null 2>&1
+# CGI session file cleanup
+0 7 * * * /usr/bin/find /cgisession -type f -mtime +30 -name "cgisess_*" -exec /bin/rm -fR {} \;
+# hold report summary
+30 0 * * 0 cd /probeeng/webadmin/cgi-bin/holdreports_linux; ./hold_import_byWeek.pl
+# hold summary mail to Managers.
+0 9 * * 1 cd /probeeng/webadmin/cgi-bin/holdreports_linux; ./SendSummaryReport.pl > /dev/null
+# cleanup xls files for OpenLot WEB
+0 3 * * 0 /usr/bin/find /probeeng/webadmin/cgi-bin/OpenLot/downloads -type f -mtime +1 -exec /bin/rm -rf {} \;
+# cleanup xls files for PMI WEB
+0 3 * * 0 /usr/bin/find /probeeng/webadmin/cgi-bin/PMI/downloads -type f -mtime +1 -exec /bin/rm -rf {} \;
+#screen shot for RealView
+*/2 * * * * /probeeng/webadmin/cgi-bin/RealView/screenshot.pl > /probeeng/webadmin/cgi-bin/RealView/screenshot_log 2>&1
+#month_report for production
+0 12 1 * * /probeeng/webadmin/cgi-bin/monthly_output/work_loading.pl 2>&1

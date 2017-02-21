@@ -1,0 +1,178 @@
+# bitmap&scanlog scripts for j750 platform
+0,15,30,45 * * * * /exec/j750/bitmap_scripts/M09S/m09s_bmdb_cron > /dev/null 
+5,20,35,50 * * * * /exec/j750/bitmap_scripts/M09S/m09s_scan_cron > /dev/null    
+10,25,40,55 * * * * /exec/j750/bitmap_scripts/M98A/m98a_scan_cron > /dev/null 
+11,26,41,56 * * * * /exec/j750/bitmap_scripts/N29D/n29d_scan_cron > /dev/null 
+2,17,32,47 * * * * /exec/j750/bitmap_scripts/N29D/n29d_bmdb_cron > /dev/null
+#15,25,40,55 * * * * /exec/j750/bitmap_scripts/ADR/adr_bmdb_cron > /dev/null 
+15,25,40,55 * * * * /exec/j750/bitmap_scripts/ADR/adr_bmdb_cron > /data/probe_logs/bitmaps/adr_cron.log 2>&1
+6,21,36,51 * * * * /exec/j750/bitmap_scripts/N72D/n72d_scan_cron > /dev/null
+3,13,28,43 * * * * /exec/j750/bitmap_scripts/N72D/n72d_bmdb_cron > /dev/null
+4,14,29,44 * * * * /exec/j750/bitmap_scripts/N83J/n83j_scan_cron > /dev/null
+6,16,31,46 * * * * /exec/j750/bitmap_scripts/N30D/n30d_scan_cron > /dev/null
+# BMDBArch_tar gathers *.bmdb files by lot,wafer into *.bmdb.tgz files
+#15 * * * * /exec/apps/bin/cron/bin/BMDBArch_tar.pl LTE_J750 > /dev/null 2>&1
+#  BMDBArch_cpio gathers *.bmdb files  for FADO by lot,wafer into *.cpio.gz  files
+30 * * * * /exec/apps/bin/cron/bin/BMDBArch_cpio.pl M09S_FADO > /dev/null 
+#yield monitor result report webpage backstage data process
+#0,15,30,45 * * * * /exec/apps/tools/ymbin_result_linux/process_ymlog > /dev/null
+30 8 * * 1 /exec/apps/tools/cron/cleanup/j750manage_stdf
+# Add monitor for DBOX directory and Norstar/EOW
+5 7,11,16 * * * /exec/apps/tools/checklog/checkloader 2>&1 | mailx -s 'CheckLoader' tjndata@freescale.com > /dev/null 2>&1
+# Move ltx floor df files to backup folder
+0 0 23 * * /exec/apps/tools/cron/cleanup/Ltx_manage_data.sh >>/data/probe_logs/ltx_dlog/ltx_backup_df.log
+# Monitor server scripts permission 
+0 8,13,16 * * * /exec/apps/tools/cron/monitor/serverck | mailx -s "Server Setuid check" tjndata@freescale.com
+# ship M73D data to ewm
+30 2,8,14,20 * * * /exec/apps/tools/shockwave_linux/shipment.pl
+
+#####################cleanup 750 bitmap file##########################################
+0 5 * * * /usr/bin/find /data/j750_temp/bitmaps -type f -mtime +14 -exec /bin/rm -fR {} \; > /dev/null
+###########################laser folder isn't exist, comment it#######################
+#10 3 * * * /usr/bin/find /data/j750_temp/laser -user probe -mtime +60 -exec /bin/rm -fR {} \; > /dev/null
+#############################check tester system time ################################
+30 7,15 * * * /exec/apps/tools/checkspace/allcktime  >> /exec/apps/tools/checkspace/allcktime.log
+#####################archive laser file  backup laser data every week#################
+59 23 * * 6 /exec/apps/tools/backup_laser/backup_laser.sh > /dev/null
+## updateStationList - make sure the offline station can not startup integrator when online again##############
+40 7 * * * /exec/apps/integrator/StationList/updateStationList >> /exec/apps/integrator/StationList/updateStationList.log
+################################bc function for some log files ########################
+59 23 * * 6 /data/probe_logs/ymbin/bc yield_monitor.log /data/probe_logs/ymbin > /dev/null 
+#59 23 * * 6 /data/probe_logs/opid/bc PMI_FULL.log /data/probe_logs/opid > /dev/null 
+#59 23 * * 6 /data/probe_logs/pcts/bc pcts.log /data/probe_logs/pcts > /dev/null 
+#abandon it because opid folder is empty for a long time
+#0 6 * * * /data/probe_logs/opid/bc_day PMI.log PMI_FULL.log > /dev/null
+
+#comment by JiangNan 20150706, abandone because no DTS station, request by JinFeng.
+#59 23 * * 6 /exec/apps/tools/MatchLtWafID/bc DTS_ltInfGoodDieCount.log /data/probe_logs/DTS_ltInfGoodDieCount > /dev/null
+#59 23 * * 6 /exec/apps/tools/MatchLtWafID/bc DTS_ltInfGoodDieCount_normal.log /data/probe_logs/DTS_ltInfGoodDieCount > /dev/null
+# end
+
+#33 9 * * * /exec/apps/tools/MatchLtWafID/bc DTS_ltInfGoodDieCount_normal.log /data/probe_logs/DTS_ltInfGoodDieCount > /dev/null
+#33 9 * * * /exec/apps/tools/MatchLtWafID/bc DTS_ltInfGoodDieCount.log /data/probe_logs/DTS_ltInfGoodDieCount > /dev/null
+#35 9 * * * /exec/apps/tools/MatchLtWafID/mail_lt_inf_gooddie_linux.ksh DTS_ltInfGoodDieCount.log > /dev/null
+#35 9 * * * /exec/apps/tools/MatchLtWafID/mail_lt_inf_gooddie_linux.ksh DTS_ltInfGoodDieCount_normal.log > /dev/null
+
+#comment by JiangNan 20150706, abandone because no DTS station, request by JinFeng.
+#0 8 * * 1 /exec/apps/tools/MatchLtWafID/mail_lt_inf_gooddie_linux.ksh DTS_ltInfGoodDieCount.log > /dev/null
+#0 8 * * 1 /exec/apps/tools/MatchLtWafID/mail_lt_inf_gooddie_linux.ksh DTS_ltInfGoodDieCount_normal.log > /dev/null
+# end
+
+# auto download sleuth info
+30 0 * * * /exec/apps/tools/sleuth/getsleuth_lastday > /dev/null 
+30 10 * * * /exec/apps/tools/sleuth/getsleuth_today > /dev/null 
+30 20 * * * /exec/apps/tools/sleuth/getsleuth_today > /dev/null 
+## transferStationOwner - copy the station owner list to JB Star
+0 8,20 * * * /exec/apps/tools/cron/monitor/transferStationOwner > /dev/null
+## check partition for testers
+30 * * * * /exec/apps/tools/checkspace/allckdisk >> /exec/apps/tools/checkspace/allckdisk.log
+10 * * * * /exec/apps/tools/checkspace/svdkck > /dev/null 
+15 8,11,14,16,19 * * * /exec/apps/tools/checkspace/svdkck_process > /dev/null 
+#monitor for DBOX
+15 2,7,12,16,20 * * * /exec/apps/tools/checklog/LOCAL_CheckDboxLog.sh
+# Add monitor on all the j971 about the yield hole
+13 * * * * /exec/apps/tools/checklog/J971_jobterminating_monitor.sh
+#fablot_ext run every 30 mins
+15,45 * * * * /exec/apps/bin/fablot_ext/TJN_fablot_ext_linux.pl > /dev/null 
+#cronjob to process the bitmap&scanlog files for p10xx
+30 * * * * /exec/apps/bin/cron/bin/TJN_FileProc.pl N23B_SCAN 93k_external > /dev/null 
+35 * * * * /exec/apps/bin/cron/bin/TJN_FileProc.pl N23B_BITMAP 93k_external > /dev/null 
+10 * * * * /exec/apps/bin/cron/bin/TJN_FileProc.pl M79W_SCAN 93k_external > /dev/null
+15 * * * * /exec/apps/bin/cron/bin/TJN_FileProc.pl M79W_BITMAP 93k_external > /dev/null
+20 * * * * /exec/apps/bin/cron/bin/TJN_FileProc.pl M81W_SCAN 93k_external > /dev/null
+25 * * * * /exec/apps/bin/cron/bin/TJN_FileProc.pl M81W_BITMAP 93k_external > /dev/null
+40 * * * * /exec/apps/bin/cron/bin/TJN_FileProc.pl N61A_SCAN 93k_external > /dev/null
+45 * * * * /exec/apps/bin/cron/bin/TJN_FileProc.pl N61A_BITMAP 93k_external > /dev/null
+50 * * * * /exec/apps/bin/cron/bin/TJN_FileProc.pl N48H_BITMAP 93k_external > /dev/null
+#Cronjob to process the SINF file from external and remove ^M
+35 * * * * /exec/apps/bin/cron/bin/OHP_FileProc.pl UNITIVE_EPB external > /dev/null
+#  device_modification_list file in /exec/apps/probe_config/fablots/promis_data,
+#  which is important for fablot solutions,execute every 30 mins
+13,43 * * * * cd /exec/apps/bin/fablots/bin;./generate_map_table.sh > /dev/null
+#find *.lt file script, run 4 times everyday
+5 1,7,13,19 * * * /exec/apps/tools/MatchLtWafID/findLtFile.pl > /dev/null
+#cleanup old lt files under /data/DTS_temp directory weekly
+59 23 * * 6 /exec/apps/tools/MatchLtWafID/manage_lt.sh > /dev/null
+# manage local files for each platform
+30 9 * * * /exec/apps/tools/cron/cleanup/check_laser.sh > /exec/apps/tools/cron/cleanup/check_laser_results.log
+0 9 * * 3 /exec/apps/tools/cron/cleanup/Cat_manage_data.sh
+0 9 * * 2 /exec/apps/tools/cron/cleanup/KGD_MST_done_File_Manage.sh
+0 15 * * * /exec/apps/tools/cron/cleanup/Ltk_manage_stdf.sh
+#  application to execute generate_genesis_lot.sh to generate the lot information from genesis DB
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * /exec/apps/bin/fablots/bin/generate_genesis_lot.sh > /dev/null
+# check NSX file number, if limit then send email to data team
+45 9,15 * * * /exec/apps/tools/checkspace/check_file_num  > /dev/null 
+# check /data/NSX/SINF dir file number. the high limit is 8000. if yes , send
+# waring email to tool owner
+30 9,15 * * * /exec/apps/tools/checkspace/Chk_NSX_SINF_num > /dev/null
+# check the integrator version,/usr/local/,custom link on all the tester and the redundancy of integrator startup script for each platform
+30 7 * * 1,3,5 /exec/apps/bin/checkfile/checkfile_v2.sh 2>&1 | mailx -s 'Checkfile' tjndata@freescale.com > /dev/null 2>&1
+#monitor the number of STDF files for one wafer. If exceed the limit, raise alarm.
+5 * * * * /exec/apps/tools/stdfcounter/umcalarm > /dev/null
+#cronjob to check sendmail function
+0 11 * * * /exec/apps/tools/checksendmail/test_sendmail.sh > /exec/apps/tools/checksendmail/test_all_sendmailfunc.log
+30 11 * * * /exec/apps/tools/checksendmail/check_chkmail.pl > /exec/apps/tools/checksendmail/check_chkmail.log
+# cleanup KC01N21B part INF from /floor/data/resu*/KC01N21B dir. if the data
+# is more then promis, Kevin EWM AOL will abnormal
+0 12 * * 4 /exec/apps/tools/cron/cleanup/KC01N21B_datafile_Manage.sh >> /probeeng/bat3eng/ARCHIVE/KC01N21B/KC01N21B_datafile_Manage.log
+# cleanup /data/probe data, if the date more then 45 days
+#30 15 * * * /exec/apps/tools/cron/cleanup/cleanup_dataprobe_stdf.sh > /dev/null
+# cleanup DS10K XML data to archive folder  . the foler is in xml_archive
+#0 0 * * 1 /exec/apps/tools/cron/cleanup/cleanup_DS10K_XML_Archive.sh
+#  remove the corr waf lotid in fablot.txt which exceed time span; comment by JiangNan, not used. just keep it
+#0,30 * * * * cd /exec/apps/bin/fablots/bin;./corr_waf_removal.sh > /dev/null 2>&1
+# application to check skip_probe_daemon running
+4,14,24,34,44,54 * * * * /exec/apps/bin/skip_probe_map/check_daemon_thread_linux > /dev/null 
+#  application to check build_fablot_daemon running
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * /exec/apps/bin/fablots/bin/check_daemon_thread > /dev/null
+#  checkevr script to monitor the integrator self evr
+17 3,7,10,12,14,17,20,22 * * * /exec/apps/integrator/IntegratorProcessControl/rshtool_fs > /exec/apps/integrator/IntegratorProcessControl/OutputText 
+#  check lotd limits
+0 10 * * * /exec/apps/tools/check_lotd_limit/show.pl > /dev/null
+## JBstar related cron job
+6,30 * * * * cd /exec/apps/bin/JBStar_Loader/; ./JBStart-solaris > /dev/null 
+23,52 * * * * cd /exec/apps/bin/SuperMarket_Loader; ./ZSuperMarket-solaris > /dev/null
+18,48 * * * * cd /exec/apps/bin/Corrtool_Loader; ./Corrtool-solaris > /dev/null 
+16 9 * * * cd /exec/apps/bin/Data_Purge; ./DataPurge.jar > /dev/null
+#0 * * * * /exec/apps/bin/JBStar_Loader/check_daemon_thread > /dev/null 
+## INK Data Loader cron job
+20,50 * * * * cd /exec/apps/bin/INKData_Loader; ./UpINK-solaris > /dev/null
+### backup fablot_debug.txt job temp
+59 23 * * * /exec/apps/probe_config/fablot_ext/backup_debug.sh
+### test env for jn about fablot_ext
+#17,47 * * * * /exec/apps/bin/fablot_ext/TJN_fablot_ext_linux_test.pl > /dev/null 
+### upload stdf files from local tester to EWM, backup it to /probeeng/bat3eng/ARCHIVE/FLEX_STDF_SPOOL/P_Lot if upload successfully
+10 11 * * * /exec/apps/tools/cron/cleanup/flex/flex_upload_stdf2ewm.sh
+### check Integrator in MST & LTX platform
+#02 10 * * * /exec/apps/tools/cron/cleanup/checkIntegrator.sh
+### check Pre_PMI status in floorview, if exist , this code will send email to production team.
+0 0,5,11,12,17,23 * * * /exec/apps/tools/checkspace/check_floorview_PrePMI > /dev/null 
+#50 10,22 * * * /exec/apps/tools/checkspace/check_floorview_PrePMI > /dev/null
+45 5,17 * * * /exec/apps/tools/checkspace/check_floorview_PrePMI > /dev/null
+### send all tester runing information to MFG team everyday from 7 am to 9 am
+0,30 7-9 * * * /exec/apps/tools/checkspace/Floorview_J750_Status/Tester_floorview_status > /dev/null
+### Data Collection job for CPLE shipout lot Hot Pass Time
+30 8 * * * /exec/apps/bin/ProcessEXE/TestTimeCollection/TestTimeCollectionDaemon.pl
+### Data Collection job for ISTAR 9400-EWM lot Hot Pass Time
+30 7 * * * /exec/apps/bin/ProcessEXE/TestTimeCollection/TestTimeCollectionDaemon_N21B.pl
+### cleanup 93k local /var/tmp data collection files and contact test files
+20 11 * * * /exec/apps/tools/cron/cleanup/93K_manage_data.sh 
+### Scan master info file for whole floor.
+7 8,12,16,21 * * * /exec/apps/tools/cron/monitor/rs.pl 
+### Backup Yield Monitor Log By Work Week.
+#59 23 * * 6 /data/probe_logs/ymbin/TriggerLog/BackupByWeek.sh yield_monitor_results.log /data/probe_logs/ymbin/TriggerLog
+#  check Bump file name format
+0 13 * * * /exec/apps/tools/bump/bump_format_check.pl > /dev/null
+# Load log info into database (YieldMonitor) 
+0,40 * * * * /data/probe_logs/ymbin/TriggerLog/YMLogImport_v3.pl 
+# Load log info into database (PMI)
+0,30 * * * * /data/probe_logs/pmi/Record/PMILogImport.pl
+# Check INF format config file for YM
+20 10,16 * * * /exec/apps/bin/ProcessEXE/CheckFormat/check_config.pl /exec/apps/bin/evr/ymbin/TJNconfig/limits.txt 2>&1 | mailx -s 'Check Format' r65033@freescale.com yaonan.guo@nxp.com b03722@freescale.com r64932@freescale.com r65396@freescale.com b06176@freesacle.com b06242@freescale.com
+0 11,16 * * * /exec/apps/bin/ProcessEXE/CheckFormat/check_config.pl /exec/apps/bin/evr/ymbin/TJNconfig/bin_limits.txt 2>&1 | mailx -s 'Check Format' r65033@freescale.com yaonan.guo@nxp.com b03722@freescale.com r64932@freescale.com r65396@freescale.com b06176@freesacle.com b06242@freescale.com
+# Check process at 4am
+08,09,10,11,12 4 * * * ps -ef >> /probeeng/probe/temp/check4am.log
+# Move Sinf /data/rebin/EPB 
+0 9 * * * /exec/apps/tools/cron/cleanup/move_sinf.pl >> /data/probe_logs/sinf/sinf_logs
+#####
+# End
